@@ -1,0 +1,132 @@
+.game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  display: grid;
+  grid-template-areas:
+    "controls"
+    "battle"
+    "pokemon"
+    "trainers";
+  grid-template-rows:
+    auto
+    auto
+    1fr
+    auto;
+  min-height: 600px;
+  gap: 20px;
+}
+
+.control-buttons {
+  grid-area: controls;
+}
+
+.battle-area {
+  grid-area: battle;
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  grid-template-areas: "trainer-pokemon battle-text wild-pokemon";
+  gap: 20px;
+}
+
+.selected-pokemon {
+  grid-area: trainer-pokemon;
+  border: 2px dashed #3c5aa6;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: rgba(204, 230, 255, 0.5);
+  justify-self: start;
+}
+
+.battle-text {
+  font-size: xx-large;
+  text-shadow: #3c5aa6 1px;
+  color: #ff5722;
+}
+
+.wild-pokemon {
+  grid-area: wild-pokemon;
+  border: 2px dashed #ff5722;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: rgba(255, 235, 205, 0.5);
+  justify-self: end;
+}
+
+.trainers-pokemon {
+  display: grid;
+  grid-area: pokemon;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.trainers-area {
+  display: grid;
+  grid-area: trainers;
+  gap: 50px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "user-trainer enemy-trainer";
+}
+
+.user-trainer {
+  grid-area: user-trainer;
+  justify-self: start;
+}
+
+.enemy-trainer {
+  grid-area: enemy-trainer;
+  justify-self: end;
+}
+
+button {
+  padding: 10px 15px;
+  margin-right: 10px;
+  cursor: pointer;
+  background-color: #ffcb05;
+  border: 2px solid #3c5aa6;
+  border-radius: 5px;
+  color: #3c5aa6;
+  font-weight: bold;
+}
+
+.trainers-pokemon img {
+  width: 100%;
+  cursor: pointer;
+}
+
+.trainers-pokemon .pokemon-card {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.trainers-pokemon .pokemon-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(60, 90, 166, 0.5);
+}
+
+img {
+  max-width: 150px;
+  height: auto;
+}
+
+.pokemon-card {
+  border: 2px solid #3c5aa6;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #f0f0f0;
+}
+
+.user-trainer,
+.enemy-trainer img {
+  max-width: 100px;
+}
+
+.user-trainer,
+.enemy-trainer div {
+  font-weight: bold;
+  color: #3c5aa6;
+  margin-bottom: 5px;
+}
