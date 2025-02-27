@@ -54,6 +54,10 @@ function catchWildPokemon() {
     updateView();
 }
 
+function runAwayFromBattle() {
+    resetBattle();
+}
+
 function healThePokemon(index) {
     const findPokemon = model.data.allPokemons.find(({ name }) => name === model.input.inventory.pokemonsTheUserHasCaught[index].name)
     model.input.inventory.pokemonsTheUserHasCaught[index].hp = findPokemon.hp;

@@ -69,8 +69,7 @@ function renderBattleArea() {
             `<div></div>`
 
         }
-        </div>
-        `
+    </div>`;
 }
 
 function renderInventory() {
@@ -86,20 +85,19 @@ function renderInventory() {
 
 function renderTrainers() {
     return `
-        <div class="trainers-area"
-        <div class="user-trainer">
-            <div> name: ${model.data.allTrainers[0].name}</div>
-            <img src="${model.data.allTrainers[0].img}">
-        </div>
-        ${model.input.battle.isFightingTrainer ?
+        <div class="trainers-area">
+            <div class="user-trainer">
+                <div> name: ${model.data.allTrainers[0].name}</div>
+                <img src="${model.data.allTrainers[0].img}">
+            </div>
+            ${model.input.battle.isFightingTrainer ?
             `
-        <div class="enemy-trainer">
-            <div> name: ${model.data.allTrainers[1].name}</div>
-            <img src="${model.data.allTrainers[1].img}">
-        </div>
+            <div class="enemy-trainer">
+                <div> name: ${model.data.allTrainers[1].name}</div>
+                <img src="${model.data.allTrainers[1].img}">
+            </div>
             `
             : ''
         }
-    </div>
-    `
+        </div>`;
 }
