@@ -16,7 +16,8 @@ function resetBattle() {
     model.input.battle.hasTheBattleBeenWon = false;
     model.input.battle.battleText = '';
     model.input.battle.wildPokemon = null;
-    model.input.battle.selectedPokemon = null;
+    model.input.battle.userSelectedPokemon = null;
+    model.input.battle.enemySelectedPokemon = null;
     model.input.inventory.wantToShowPokemons = false;
     model.input.elements.userCanAttack = true;
     updateView();
@@ -46,7 +47,7 @@ function startTrainerBattle() {
     model.input.battle.isFightingTrainer = true;
     model.input.battle.isActive = true;
     model.input.inventory.enemyTrainersPokemons = deepCopyArray(model.data.enemyTrainersPokemons)
-    model.input.battle.wildPokemon = model.input.inventory.enemyTrainersPokemons[0]
+    model.input.battle.enemySelectedPokemon = model.input.inventory.enemyTrainersPokemons[0]
     updateView();
 }
 
@@ -73,7 +74,7 @@ function showPokemonInventory() {
 }
 
 function selectPokemonForBattle(index) {
-    model.input.battle.selectedPokemon = model.input.inventory.pokemonsTheUserHasCaught[index];
+    model.input.battle.userSelectedPokemon = model.input.inventory.pokemonsTheUserHasCaught[index];
     model.input.battle.haveUserSelectedPokemon = true;
     model.input.battle.battleText = '';
     showPokemonInventory();
@@ -81,29 +82,53 @@ function selectPokemonForBattle(index) {
 }
 
 function userAttack() {
+    if (model.input.battle.hasTheBattleBeenWon) return
     model.input.elements.userCanAttack = false;
-    const damage = calculateDamage(model.input.battle.selectedPokemon.level)
-    model.input.battle.wildPokemon.hp = model.input.battle.wildPokemon.hp - damage;
-    model.input.battle.battleText = model.input.battle.selectedPokemon.name + ' hit for ' + damage;
-    checkBattleState();
-    if (!model.input.battle.hasTheBattleBeenWon) {
-        enemyAttack();
+    const damage = calculateDamage(model.input.battle.userSelectedPokemon.level)
+
+    if (!model.input.battle.isFightingTrainer) {
+        model.input.battle.wildPokemon.hp = model.input.battle.wildPokemon.hp - damage;
+        model.input.battle.battleText = model.input.battle.userSelectedPokemon.name + ' hit for ' + damage;
+        enemyAttack(model.input.battle.wildPokemon)
+    } else {
+        enemyAttack(model.input.battle.enemySelectedPokemon)
+        model.input.battle.enemySelectedPokemon.hp = model.input.battle.enemySelectedPokemon.hp - damage;
+        model.input.battle.battleText = model.input.battle.userSelectedPokemon.name + ' hit for ' + damage;
     }
+    checkBattleState();
     updateView();
 }
 
-function enemyAttack() {
+function enemyAttack(wildOrEnemyPokemon) {
     setTimeout(() => {
         if (model.input.battle.hasTheBattleBeenWon) return
 
-        const damage = calculateDamage(model.input.battle.wildPokemon.level)
-        model.input.battle.selectedPokemon.hp = model.input.battle.selectedPokemon.hp - damage;
-        model.input.battle.battleText = 'Wild ' + model.input.battle.wildPokemon.name + ' hit for ' + damage;
+        const damage = calculateDamage(wildOrEnemyPokemon.level)
+        model.input.battle.userSelectedPokemon.hp = model.input.battle.userSelectedPokemon.hp - damage;
+        model.input.battle.battleText = wildOrEnemyPokemon.name + ' hit for ' + damage;
         model.input.elements.userCanAttack = true;
         checkBattleState();
         updateView();
     }, 1000);
 }
+/*function enemyAttack(wildOrEnemyPokemon) {
+   setTimeout(() => {
+       if (model.input.battle.hasTheBattleBeenWon) return
+
+       const damage = calculateDamage(model.input.battle.wildPokemon.level)
+       model.input.battle.userSelectedPokemon.hp = model.input.battle.userSelectedPokemon.hp - damage;
+
+       if (model.input.battle.isFightingTrainer) {
+           model.input.battle.battleText = model.input.battle.wildPokemon.name + ' hit for ' + damage;
+       } else {
+           model.input.battle.battleText = 'Wild ' + model.input.battle.wildPokemon.name + ' hit for ' + damage;
+       }
+       model.input.elements.userCanAttack = true;
+       checkBattleState();
+       updateView();
+   }, 1000);
+}
+*/
 
 function checkBattleState() {
     if (model.input.battle.hasTheBattleBeenWon) return
@@ -113,37 +138,83 @@ function checkBattleState() {
         updateView();
         return
     }
+    pokemonShape()
 
+    /*  if (model.input.battle.isFightingTrainer) {
+         checkBattleStateForTrainer();
+         return
+     } */
+}
+
+function pokemonShape() {
+    // Check in trainer Battle
     if (model.input.battle.isFightingTrainer) {
-        checkBattleStateFightingTrainer();
-        return
+        checkIfAnyoneWon(model.input.inventory.pokemonsTheUserHasCaught, model.data.allTrainers[1]);
+        checkIfAnyoneWon(model.input.inventory.enemyTrainersPokemons, model.data.allTrainers[0]);
+        console.log('trainer battle')
+    }
+    // Check in wild pokemon battle
+    if (!model.input.battle.isFightingTrainer) {
+        console.log('wild battle')
+        checkIfAnyoneWon(model.input.inventory.pokemonsTheUserHasCaught, model.input.battle.wildPokemon)
+        checkIfAnyoneWon(model.input.battle.wildPokemon, model.data.allTrainers[0])
     }
 
-    if (model.input.battle.selectedPokemon.hp <= 0) {
+
+
+    /* if (model.input.battle.selectedPokemon.hp <= 0) {
         model.input.battle.battleText = model.input.battle.wildPokemon.name + ` has won`;
         model.input.battle.hasTheBattleBeenWon = true;
         setTimeout(() => resetBattle(), 3000);
-    }
-
-    if (model.input.battle.wildPokemon.hp <= 0) {
-        model.input.battle.battleText = model.data.allTrainers[0].name + ' and ' + model.input.battle.selectedPokemon.name + ' has won';
-        model.input.battle.hasTheBattleBeenWon = true;
-        setTimeout(() => resetBattle(), 3000);
-    }
-
-    function checkBattleStateFightingTrainer() {
-        for (let i = 0; i < model.input.inventory.enemyTrainersPokemons.length; i++) {
-            if (model.input.inventory.enemyTrainersPokemons[model.input.inventory.enemyTrainersPokemons.length - 1].hp <= 0) {
-                console.log('does this run')
-                model.input.battle.battleText = model.data.allTrainers[0].name + ' and ' + model.input.battle.selectedPokemon.name + ' has won';
-                model.input.battle.hasTheBattleBeenWon = true;
-                updateView();
-                setTimeout(() => resetBattle(), 3000);
-            }
-            if (model.input.battle.wildPokemon.hp <= 0) {
-                model.input.battle.wildPokemon = model.input.inventory.enemyTrainersPokemons[i + 1];
-            }
-        }
-    }
+    } */
 
 }
+
+function checkIfAnyoneWon(whatOpponent, whichEntity) {
+    for (let i = 0; i < whatOpponent.length; i++) {
+        if (whatOpponent[whatOpponent.length - 1].hp <= 0) {
+            model.input.battle.battleText = whichEntity.name + ' has won';
+            model.input.battle.hasTheBattleBeenWon = true;
+            updateView();
+            setTimeout(() => resetBattle(), 3000);
+            return
+        }
+        if (model.input.battle.isFightingTrainer && model.input.battle.enemySelectedPokemon.hp <= 0) {
+            model.input.battle.enemySelectedPokemon = model.input.inventory.enemyTrainersPokemons[i + 1];
+        }
+        if (model.input.battle.isFightingTrainer && model.input.battle.userSelectedPokemon.hp <= 0) {
+            model.input.battle.userSelectedPokemon = model.input.inventory.pokemonsTheUserHasCaught[i + 1];
+        }
+    }
+}
+/* function checkIfAnyoneWon(allTrainerPokemons, whichEntity, options = {}) {
+    const {
+
+    }
+    for (let i = 0; i < allTrainerPokemons.length; i++) {
+        if (allTrainerPokemons[allTrainerPokemons.length - 1].hp <= 0) {
+            model.input.battle.battleText = whichEntity.name + ' has won';
+            model.input.battle.hasTheBattleBeenWon = true;
+            updateView();
+            setTimeout(() => resetBattle(), 3000);
+        }
+        if (model.input.battle.isFightingTrainer && model.input.battle.enemySelectedPokemon.hp <= 0) {
+            model.input.battle.enemySelectedPokemon = model.input.inventory.enemyTrainersPokemons[i + 1];
+        }
+    }
+} */
+
+/* function checkBattleStateForTrainer(whatTrainer) {
+    for (let i = 0; i < whatTrainer; i++) {
+        if (model.input.inventory.enemyTrainersPokemons[model.input.inventory.enemyTrainersPokemons.length - 1].hp <= 0) {
+            console.log('does this run')
+            model.input.battle.battleText = model.data.allTrainers[0].name + ' and ' + model.input.battle.selectedPokemon.name + ' has won';
+            model.input.battle.hasTheBattleBeenWon = true;
+            updateView();
+            setTimeout(() => resetBattle(), 3000);
+        }
+        if (model.input.battle.wildPokemon.hp <= 0) {
+            model.input.battle.wildPokemon = model.input.inventory.enemyTrainersPokemons[i + 1];
+        }
+    }
+} */

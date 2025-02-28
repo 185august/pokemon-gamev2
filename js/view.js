@@ -15,7 +15,6 @@ function updateView() {
 function renderPokemon(pokemon, cssClass, options = {}) {
     const {
         onClick = '',
-        index = null,
     } = options
 
     return `
@@ -56,7 +55,7 @@ function renderBattleArea() {
     <div class="battle-area">
     ${model.input.battle.haveUserSelectedPokemon ? `
         <div class="selected-pokemon">
-        ${renderPokemon(model.input.battle.selectedPokemon)}
+        ${renderPokemon(model.input.battle.userSelectedPokemon)}
         ${model.input.elements.userCanAttack ? `<button onclick="userAttack()">Attack</button>`
                 : ''}
         </div>`: ''}  
@@ -65,9 +64,9 @@ function renderBattleArea() {
         </div>      
         ${model.input.battle.wildPokemon ?
             `
-            ${renderPokemon(model.input.battle.wildPokemon, 'wild-pokemon')}\
+            ${renderPokemon(model.input.battle.wildPokemon, 'wild-pokemon')}
             `:
-            `<div></div>`
+            `${renderPokemon(model.input.battle.enemySelectedPokemon, 'wild-pokemon')}`
 
         }
     </div>`;
