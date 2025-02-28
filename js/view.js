@@ -24,9 +24,10 @@ function renderPokemon(pokemon, cssClass, options = {}) {
     <img src="${pokemon.img}">
     <div>Level: ${pokemon.level}</div>
     <div>Hp: ${pokemon.hp}</div>
-    ${!model.input.battle.isActive ? `<button onclick="healThePokemon(${index})"> Heal</button>` : ''} 
+    ${!model.input.battle.isActive ? `<button onclick="${onClick}"> Heal</button>` : ''} 
     </div>
     `
+    //${!model.input.battle.isActive ? `<button onclick="healThePokemon(${index})"> Heal</button>` : ''} 
 }
 
 function renderButtons() {
@@ -77,9 +78,8 @@ function renderInventory() {
 
     return model.input.inventory.pokemonsTheUserHasCaught.map((pokemon, index) =>
         renderPokemon(pokemon, 'selected-pokemon', {
-            onClick: model.input.battle.isActive ?
-                `selectPokemonForBattle(${index})` : '',
-            index
+            onClick: model.input.battle.isActive && model.input.battle.isPokemonAbleTofight ?
+                `selectPokemonForBattle(${index})` : `healThePokemon(${index})`
         })).join('');
 }
 

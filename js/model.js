@@ -12,11 +12,14 @@ const model = {
             selectedPokemon: null,
             haveUserSelectedPokemon: false,
             userTurnInBattle: true,
+            isPokemonAbleTofight: true,
         },
         inventory: {
             availablePokemons: [],
             pokemonsTheUserHasCaught: [],
+            enemyTrainersPokemons: [],
             wantToShowPokemons: false,
+
         },
         elements: {
             userCanAttack: true,
@@ -44,7 +47,6 @@ const model = {
             { name: 'Bulbasour', level: 20, img: 'img/pokemon5.png', hp: 50 },
             { name: 'Jigglypuff', level: 25, img: 'img/pokemon6.png', hp: 105 },
             { name: 'Dragonair', level: 45, img: 'img/pokemon9.png', hp: 240 },
-
         ]
     },
 }
@@ -58,5 +60,5 @@ function randomNumber(min, max) {
 }
 
 function calculateDamage(level) {
-    return Math.floor(Math.random() * 2 * level) + 1;
+    return randomNumber(1, 4) * level;
 }

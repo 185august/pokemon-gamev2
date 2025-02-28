@@ -13,10 +13,11 @@ function resetBattle() {
     model.input.battle.isFightingTrainer = false;
     model.input.battle.haveUserSelectedPokemon = false;
     model.input.battle.isUserTurn = true;
-    model.input.battle.hasBeenWon = false;
+    model.input.battle.hasTheBattleBeenWon = false;
     model.input.battle.battleText = '';
     model.input.battle.wildPokemon = null;
     model.input.battle.selectedPokemon = null;
+    model.input.inventory.wantToShowPokemons = false;
     model.input.elements.userCanAttack = true;
     updateView();
 }
@@ -28,7 +29,7 @@ function initializeGame() {
 
 function startWildBattle() {
     resetBattle();
-
+    checkBattleState();
     const randomIndex = randomNumber(0, model.input.inventory.availablePokemons.length - 1);
     console.log(randomIndex)
     model.input.battle.wildPokemon = { ...model.input.inventory.availablePokemons[randomIndex] };
@@ -40,11 +41,12 @@ function startWildBattle() {
 
 function startTrainerBattle() {
     resetBattle();
+    checkBattleState();
 
     model.input.battle.isFightingTrainer = true;
     model.input.battle.isActive = true;
-    model.input.battle.wildPokemon = { ...model.data.enemyTrainersPokemons[0] }
-
+    model.input.inventory.enemyTrainersPokemons = deepCopyArray(model.data.enemyTrainersPokemons)
+    model.input.battle.wildPokemon = model.input.inventory.enemyTrainersPokemons[0]
     updateView();
 }
 
@@ -67,13 +69,13 @@ function healThePokemon(index) {
 
 function showPokemonInventory() {
     model.input.inventory.wantToShowPokemons = !model.input.inventory.wantToShowPokemons;
-
     updateView();
 }
 
 function selectPokemonForBattle(index) {
     model.input.battle.selectedPokemon = model.input.inventory.pokemonsTheUserHasCaught[index];
     model.input.battle.haveUserSelectedPokemon = true;
+    model.input.battle.battleText = '';
     showPokemonInventory();
     updateView();
 }
@@ -96,7 +98,7 @@ function enemyAttack() {
 
         const damage = calculateDamage(model.input.battle.wildPokemon.level)
         model.input.battle.selectedPokemon.hp = model.input.battle.selectedPokemon.hp - damage;
-        model.input.battle.battleText = model.input.battle.wildPokemon.name + ' hit for ' + damage;
+        model.input.battle.battleText = 'Wild ' + model.input.battle.wildPokemon.name + ' hit for ' + damage;
         model.input.elements.userCanAttack = true;
         checkBattleState();
         updateView();
@@ -106,16 +108,42 @@ function enemyAttack() {
 function checkBattleState() {
     if (model.input.battle.hasTheBattleBeenWon) return
 
+    if (model.input.battle.haveUserSelectedPokemon == false) {
+        model.input.battle.battleText = 'Ash has to select a pokemon!'
+        updateView();
+        return
+    }
+
+    if (model.input.battle.isFightingTrainer) {
+        checkBattleStateFightingTrainer();
+        return
+    }
+
     if (model.input.battle.selectedPokemon.hp <= 0) {
-        model.input.battle.battleText = model.input.battle.wildPokemon.name + ` has won`
+        model.input.battle.battleText = model.input.battle.wildPokemon.name + ` has won`;
         model.input.battle.hasTheBattleBeenWon = true;
-        setTimeout(() => resetBattle(), 1000);
+        setTimeout(() => resetBattle(), 3000);
     }
 
     if (model.input.battle.wildPokemon.hp <= 0) {
-        model.input.battle.battleText = model.data.allTrainers[0].name + ' and ' + model.input.battle.selectedPokemon.name + ' has won'
+        model.input.battle.battleText = model.data.allTrainers[0].name + ' and ' + model.input.battle.selectedPokemon.name + ' has won';
         model.input.battle.hasTheBattleBeenWon = true;
-        setTimeout(() => resetBattle(), 1000);
+        setTimeout(() => resetBattle(), 3000);
     }
-    updateView();
+
+    function checkBattleStateFightingTrainer() {
+        for (let i = 0; i < model.input.inventory.enemyTrainersPokemons.length; i++) {
+            if (model.input.inventory.enemyTrainersPokemons[model.input.inventory.enemyTrainersPokemons.length - 1].hp <= 0) {
+                console.log('does this run')
+                model.input.battle.battleText = model.data.allTrainers[0].name + ' and ' + model.input.battle.selectedPokemon.name + ' has won';
+                model.input.battle.hasTheBattleBeenWon = true;
+                updateView();
+                setTimeout(() => resetBattle(), 3000);
+            }
+            if (model.input.battle.wildPokemon.hp <= 0) {
+                model.input.battle.wildPokemon = model.input.inventory.enemyTrainersPokemons[i + 1];
+            }
+        }
+    }
+
 }
