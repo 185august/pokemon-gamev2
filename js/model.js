@@ -8,7 +8,7 @@ const model = {
             isFightingTrainer: false,
             hasTheBattleBeenWon: false,
             battleText: '',
-            wildPokemon: [null],
+            wildPokemon: null,
             userSelectedPokemon: null,
             enemySelectedPokemon: null,
             haveUserSelectedPokemon: false,

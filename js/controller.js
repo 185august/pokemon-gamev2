@@ -34,7 +34,6 @@ function startWildBattle() {
     const randomIndex = randomNumber(0, model.input.inventory.availablePokemons.length - 1);
     console.log(randomIndex)
     model.input.battle.wildPokemon = { ...model.input.inventory.availablePokemons[randomIndex] };
-
     model.input.battle.isActive = true;
     model.input.battle.isFightingTrainer = false;
     updateView();
@@ -109,7 +108,7 @@ function enemyAttack(wildOrEnemyPokemon) {
         model.input.elements.userCanAttack = true;
         updateView();
         checkBattleState();
-    }, 1000);
+    }, 2000);
 }
 
 function checkBattleState() {
@@ -120,11 +119,11 @@ function checkBattleState() {
         updateView();
         return
     }
-    pokemonShape()
+    whatTypeOFBattle()
 
 }
 
-function pokemonShape() {
+function whatTypeOFBattle() {
     // Check in trainer Battle
     if (model.input.battle.isFightingTrainer) {
         checkIfAnyoneWon(model.input.inventory.pokemonsTheUserHasCaught, model.data.allTrainers[1]);
@@ -141,6 +140,17 @@ function pokemonShape() {
 }
 
 function checkIfAnyoneWon(whatOpponent, whichEntity) {
+    if (!Array.isArray(whatOpponent)) {
+        if (whatOpponent.hp <= 0) {
+            model.input.battle.battleText = whichEntity.name + ' has won';
+            model.input.battle.hasTheBattleBeenWon = true;
+            updateView();
+            setTimeout(() => resetBattle(), 3000);
+            return;
+        }
+        return;
+    }
+
     for (let i = 0; i < whatOpponent.length; i++) {
         if (whatOpponent[whatOpponent.length - 1].hp <= 0) {
             model.input.battle.battleText = whichEntity.name + ' has won';
